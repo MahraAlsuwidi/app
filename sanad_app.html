@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sanad · سَنَد — Mental Health App Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #C8912A;
+    --gold-light: #F5D9A8;
+    --brown-dark: #3D1F00;
+    --brown-mid: #6B3A1F;
+    --brown: #8B5E3C;
+    --cream: #FDF8F2;
+    --cream-dark: #F0E6D8;
+    --green-dark: #1F3D2A;
+    --green-mid: #2E6B3E;
+    --border: #EDE4D8;
+    --text-dark: #2C1A00;
+    --text-mid: #9E8060;
+    --text-light: #C8B89A;
+  }
+
+  body {
+    font-family: 'Tajawal', sans-serif;
+    background: #1a1a2e;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 30px 16px 40px;
+    gap: 20px;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    text-align: center;
+    color: white;
+  }
+  .page-title {
+    font-family: 'Noto Naskh Arabic', serif;
+    font-size: 28px;
+    color: var(--gold-light);
+    letter-spacing: 1px;
+  }
+  .page-sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+
+  /* ── TOP NAV ── */
+  .top-nav {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 700px;
+  }
+  .nav-btn {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    font-family: 'Tajawal', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,0.12); color: white; }
+  .nav-btn.active { background: var(--brown-mid); color: white; border-color: var(--brown-mid); }
+
+  /* ── PHONE FRAME ── */
+  .phone-outer {
+    width: 320px;
+    background: #1C1008;
+    border-radius: 48px;
+    padding: 12px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .phone-notch {
+    position: absolute;
+    top: 20px; left: 50%;
+    transform: translateX(-50%);
+    width: 80px; height: 22px;
+    background: #1C1008;
+    border-radius: 11px;
+    z-index: 20;
+  }
+  .phone-screen {
+    width: 100%;
+    height: 660px;
+    border-radius: 36px;
+    overflow: hidden;
+    background: var(--cream);
+    position: relative;
+  }
+
+  /* ── SCREENS ── */
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    animation: fadeIn 0.25s ease;
+  }
+  .screen.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* STATUS BAR */
+  .sbar {
+    padding: 14px 18px 4px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 500;
+    flex-shrink: 0;
+    z-index: 2;
+  }
+
+  /* GEOMETRIC PATTERN */
+  .geo { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+  /* ── ONBOARDING ── */
+  #s-welcome {
+    background: linear-gradient(170deg, var(--brown-dark) 0%, var(--brown-mid) 50%, var(--brown) 100%);
+  }
+  .ob-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 22px;
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+  .ob-logo {
+    width: 82px; height: 82px;
+    background: rgba(255,255,255,0.13);
+    border-radius: 26px;
+    border: 1px solid rgba(255,255,255,0.28);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px;
+  }
+  .ob-logo svg { width: 46px; height: 46px; }
+  .ob-name { font-family: 'Noto Naskh Arabic', serif; font-size: 32px; color: var(--gold-light); font-weight: 700; }
+  .ob-arabic { font-family: 'Noto Naskh Arabic', serif; font-size: 14px; color: #D4A96A; margin-bottom: 6px; direction: rtl; }
+  .ob-tag { font-size: 13px; color: rgba(255,255,255,0.72); line-height: 1.65; margin: 14px 0 20px; max-width: 230px; }
+  .ob-badge {
+    background: rgba(255,255,255,0.1);
+    border: 0.5px solid rgba(255,255,255,0.28);
+    color: rgba(255,255,255,0.85);
+    border-radius: 20px; padding: 7px 16px;
+    font-size: 11px; margin-bottom: 22px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .ob-dot { width: 7px; height: 7px; background: #A8D5B5; border-radius: 50%; }
+  .btn-gold {
+    width: 100%; padding: 14px;
+    background: var(--gold); color: white;
+    border: none; border-radius: 16px;
+    font-size: 15px; font-weight: 500;
+    font-family: 'Tajawal', sans-serif;
+    cursor: pointer; margin-bottom: 10px;
+    transition: background 0.2s;
+  }
+  .btn-gold:hover { background: #A8771F; }
+  .btn-outline {
+    width: 100%; padding: 12px;
+    background: transparent; color: var(--gold-light);
+    border: 0.5px solid rgba(245,217,168,0.35);
+    border-radius: 16px; font-size: 14px;
+    font-family: 'Tajawal', sans-serif; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-outline:hover { background: rgba(245,217,168,0.08); }
+
+  /* ── HOME ── */
+  .home-hdr {
+    background: linear-gradient(135deg, var(--brown-dark), var(--brown-mid));
+    padding: 0 0 16px; flex-shrink: 0; position: relative; overflow: hidden;
+  }
+  .hdr-top {
+    padding: 10px 18px 13px;
+    display: flex; justify-content: space-between; align-items: center;
+    position: relative; z-index: 1;
+  }
+  .greet-en { color: rgba(255,255,255,0.68); font-size: 12px; }
+  .greet-ar { font-family: 'Noto Naskh Arabic', serif; color: var(--gold-light); font-size: 18px; direction: rtl; }
+  .avatar { width: 36px; height: 36px; background: rgba(255,255,255,0.18); border-radius: 50%; border: 1px solid rgba(255,255,255,0.28); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px; }
+  .mood-bar { margin: 0 14px; background: rgba(255,255,255,0.13); border-radius: 13px; padding: 12px 14px; border: 0.5px solid rgba(255,255,255,0.2); position: relative; z-index: 1; }
+  .mood-q { color: rgba(255,255,255,0.8); font-size: 12px; margin-bottom: 9px; }
+  .mood-row { display: flex; gap: 6px; }
+  .memoji { flex: 1; padding: 8px 4px; background: rgba(255,255,255,0.15); border-radius: 9px; text-align: center; font-size: 18px; cursor: pointer; border: none; transition: background 0.2s; }
+  .memoji:hover, .memoji.sel { background: rgba(255,255,255,0.35); }
+
+  .home-body { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 13px; background: var(--cream); }
+  .sec-lbl { font-size: 11px; font-weight: 500; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.6px; }
+
+  /* Daily wisdom card */
+  .daily-card { background: linear-gradient(135deg, var(--brown-dark), var(--brown-mid)); border-radius: 16px; padding: 15px; position: relative; overflow: hidden; }
+  .daily-title { color: var(--gold-light); font-size: 13px; font-weight: 500; margin-bottom: 5px; position: relative; z-index: 1; }
+  .daily-ar { font-family: 'Noto Naskh Arabic', serif; color: rgba(255,255,255,0.65); font-size: 17px; direction: rtl; margin-bottom: 8px; position: relative; z-index: 1; }
+  .daily-quote { color: rgba(255,255,255,0.82); font-size: 12px; line-height: 1.65; font-style: italic; position: relative; z-index: 1; }
+  .daily-source { color: #D4A96A; font-size: 10px; margin-top: 6px; position: relative; z-index: 1; }
+
+  .feat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  .fcard { background: white; border-radius: 16px; padding: 13px; border: 0.5px solid var(--border); cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+  .fcard:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
+  .ficon { width: 36px; height: 36px; border-radius: 11px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 17px; }
+  .ftitle { font-size: 13px; font-weight: 500; color: var(--text-dark); }
+  .fsub { font-size: 10px; color: var(--text-mid); margin-top: 2px; }
+
+  .qcard { background: white; border-radius: 16px; padding: 14px; border: 0.5px solid var(--border); display: flex; align-items: center; gap: 12px; cursor: pointer; transition: transform 0.15s; }
+  .qcard:hover { transform: translateY(-2px); }
+  .qicon { width: 40px; height: 40px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .qtitle { font-size: 13px; font-weight: 500; color: var(--text-dark); }
+  .qsub { font-size: 10px; color: var(--text-mid); margin-top: 2px; }
+  .arr { margin-left: auto; color: var(--text-light); font-size: 16px; }
+
+  /* ── SOUNDSCAPE ── */
+  #s-sound { background: #0E0620; }
+  .sound-hdr { background: linear-gradient(135deg, #1A0A2E, #2D1654); padding: 14px 18px; flex-shrink: 0; position: relative; overflow: hidden; }
+  .sound-title { color: #E8D5FF; font-size: 17px; font-weight: 500; position: relative; z-index: 1; }
+  .sound-ar { font-family: 'Noto Naskh Arabic', serif; color: rgba(232,213,255,0.55); font-size: 13px; direction: rtl; margin-top: 3px; position: relative; z-index: 1; }
+  .sound-body { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .sound-section-lbl { font-size: 10px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+  .sound-card { background: rgba(255,255,255,0.06); border-radius: 14px; padding: 14px; border: 0.5px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background 0.2s; }
+  .sound-card:hover, .sound-card.playing { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.22); }
+  .sicon { width: 44px; height: 44px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 21px; flex-shrink: 0; }
+  .sname { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.9); }
+  .sdesc { font-size: 10px; color: rgba(255,255,255,0.42); margin-top: 2px; }
+  .pbtn { margin-left: auto; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.13); border: none; color: rgba(255,255,255,0.8); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; }
+  .pbtn:hover, .sound-card.playing .pbtn { background: rgba(255,255,255,0.28); }
+  .now-playing { background: rgba(200,145,42,0.15); border: 0.5px solid rgba(200,145,42,0.3); border-radius: 13px; padding: 12px 14px; display: flex; align-items: center; gap: 11px; }
+  .np-bars { display: flex; gap: 3px; align-items: flex-end; height: 20px; }
+  .np-bar { width: 3px; background: var(--gold); border-radius: 2px; animation: barUp 1s ease-in-out infinite; }
+  .np-bar:nth-child(2) { animation-delay: 0.15s; }
+  .np-bar:nth-child(3) { animation-delay: 0.3s; }
+  .np-bar:nth-child(4) { animation-delay: 0.45s; }
+  @keyframes barUp { 0%,100% { height: 4px; } 50% { height: 18px; } }
+  .np-lbl { color: var(--gold); font-size: 11px; font-weight: 500; }
+  .np-name { color: rgba(255,255,255,0.55); font-size: 10px; margin-top: 1px; }
+
+  /* ── BREATHE ── */
+  #s-breathe { background: linear-gradient(170deg, #F0EAE0, var(--cream)); }
+  .br-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; }
+  .br-lbl { font-size: 21px; font-weight: 500; color: var(--brown-dark); margin-bottom: 4px; z-index: 1; }
+  .br-ar { font-family: 'Noto Naskh Arabic', serif; font-size: 14px; color: var(--brown); margin-bottom: 30px; direction: rtl; z-index: 1; }
+  .circ-wrap { position: relative; width: 148px; height: 148px; margin-bottom: 28px; }
+  .ring1 { width: 148px; height: 148px; border-radius: 50%; background: var(--brown); opacity: 0.12; position: absolute; animation: bPulse 8s ease-in-out infinite; }
+  .ring2 { width: 114px; height: 114px; border-radius: 50%; background: var(--brown); opacity: 0.2; position: absolute; top: 17px; left: 17px; animation: bPulse 8s ease-in-out infinite 0.5s; }
+  .core { width: 82px; height: 82px; border-radius: 50%; background: linear-gradient(135deg, var(--brown-mid), var(--brown)); position: absolute; top: 33px; left: 33px; animation: bPulse 8s ease-in-out infinite 1s; display: flex; align-items: center; justify-content: center; }
+  .bc-num { color: white; font-size: 24px; font-weight: 500; }
+  @keyframes bPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+  .br-instr { font-size: 16px; color: var(--brown-dark); font-weight: 500; margin-bottom: 4px; z-index: 1; animation: fadeInstr 8s ease-in-out infinite; }
+  .br-instr-ar { font-family: 'Noto Naskh Arabic', serif; font-size: 13px; color: var(--brown); direction: rtl; z-index: 1; }
+  @keyframes fadeInstr { 0%,100% { opacity: 1; } 40%,60% { opacity: 0.4; } }
+  .tech-row { display: flex; gap: 7px; margin-top: 22px; z-index: 1; }
+  .tpill { padding: 7px 14px; border-radius: 20px; font-size: 11px; border: 0.5px solid #C8B89A; color: var(--brown-mid); background: transparent; cursor: pointer; font-family: 'Tajawal', sans-serif; transition: background 0.2s; }
+  .tpill.on, .tpill:hover { background: var(--cream-dark); border-color: var(--brown); }
+  .br-note { margin-top: 18px; font-size: 11px; color: var(--text-mid); text-align: center; z-index: 1; }
+
+  /* ── MOOD ── */
+  #s-mood { background: #F5FAF6; }
+  .mood-hdr2 { background: linear-gradient(135deg, var(--green-dark), var(--green-mid)); padding: 14px 18px; flex-shrink: 0; position: relative; overflow: hidden; }
+  .mhdr-title { color: white; font-size: 17px; font-weight: 500; position: relative; z-index: 1; }
+  .mhdr-ar { font-family: 'Noto Naskh Arabic', serif; color: rgba(255,255,255,0.62); font-size: 13px; direction: rtl; margin-top: 3px; position: relative; z-index: 1; }
+  .mbody { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 11px; }
+  .mlog { background: white; border-radius: 16px; padding: 14px; border: 0.5px solid #D4E8D8; }
+  .mlog-title { font-size: 13px; font-weight: 500; color: var(--green-dark); margin-bottom: 10px; }
+  .mgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 12px; }
+  .mitem { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 8px 4px; border-radius: 11px; border: 0.5px solid transparent; transition: all 0.15s; }
+  .mitem:hover, .mitem.pk { background: #E8F5EC; border-color: #5DB876; }
+  .em { font-size: 21px; }
+  .ml { font-size: 9px; color: #6A9E74; font-family: 'Noto Naskh Arabic', serif; }
+  .note-field { width: 100%; padding: 10px; border-radius: 11px; border: 0.5px solid #C5DCC9; font-size: 12px; font-family: 'Tajawal', sans-serif; color: var(--green-dark); resize: none; height: 58px; background: #F5FAF6; outline: none; }
+  .note-field:focus { border-color: #5DB876; }
+  .save-btn { width: 100%; padding: 11px; background: var(--green-mid); color: white; border: none; border-radius: 13px; font-size: 13px; font-family: 'Tajawal', sans-serif; cursor: pointer; margin-top: 10px; }
+  .save-btn:hover { background: var(--green-dark); }
+  .chart-card { background: white; border-radius: 16px; padding: 14px; border: 0.5px solid #D4E8D8; }
+  .chart-card-title { font-size: 12px; font-weight: 500; color: var(--green-dark); margin-bottom: 10px; }
+  .cbars { display: flex; align-items: flex-end; gap: 6px; height: 72px; }
+  .ccol { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+  .cbar { width: 100%; background: #9FE1B0; border-radius: 4px 4px 0 0; }
+  .cbar.today { background: var(--green-mid); }
+  .clbl { font-size: 9px; color: #A8C4AC; }
+  .data-note { font-size: 10px; color: #A8C4AC; text-align: center; padding: 2px 0; }
+
+  /* ── CHAT ── */
+  #s-chat { background: var(--cream); }
+  .chat-hdr { background: linear-gradient(135deg, var(--brown-dark), var(--brown-mid)); padding: 13px 16px; display: flex; align-items: center; gap: 11px; flex-shrink: 0; position: relative; overflow: hidden; }
+  .cavatar { width: 36px; height: 36px; background: rgba(255,255,255,0.18); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; border: 1px solid rgba(255,255,255,0.28); flex-shrink: 0; }
+  .cname { color: white; font-size: 14px; font-weight: 500; position: relative; z-index: 1; }
+  .cstatus { color: rgba(255,255,255,0.62); font-size: 10px; position: relative; z-index: 1; }
+  .cbody { flex: 1; overflow-y: auto; padding: 13px; display: flex; flex-direction: column; gap: 10px; }
+  .msg { max-width: 82%; display: flex; flex-direction: column; }
+  .msg.ai { align-self: flex-start; }
+  .msg.me { align-self: flex-end; }
+  .bbl { padding: 10px 13px; border-radius: 16px; font-size: 12px; line-height: 1.6; }
+  .msg.ai .bbl { background: white; color: var(--text-dark); border: 0.5px solid var(--border); border-radius: 4px 16px 16px 16px; }
+  .msg.me .bbl { background: var(--brown-mid); color: white; border-radius: 16px 4px 16px 16px; }
+  .mtime { font-size: 9px; color: var(--text-light); margin-top: 3px; }
+  .msg.me .mtime { text-align: right; }
+  .suggest-bar { display: flex; gap: 6px; padding: 8px 13px; overflow-x: auto; background: white; border-top: 0.5px solid var(--border); flex-shrink: 0; }
+  .suggest-bar::-webkit-scrollbar { display: none; }
+  .csug { white-space: nowrap; padding: 6px 12px; border-radius: 18px; border: 0.5px solid #D4C4B0; color: var(--brown-mid); background: transparent; font-size: 11px; font-family: 'Tajawal', sans-serif; cursor: pointer; transition: background 0.2s; }
+  .csug:hover { background: var(--cream-dark); }
+  .chat-input-bar { padding: 10px 13px; background: white; border-top: 0.5px solid var(--border); display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+  .cinput { flex: 1; padding: 9px 13px; border-radius: 22px; border: 0.5px solid #D4C4B0; font-size: 12px; font-family: 'Tajawal', sans-serif; outline: none; background: var(--cream); color: var(--text-dark); }
+  .cinput:focus { border-color: var(--brown); }
+  .csend { width: 34px; height: 34px; background: var(--brown-mid); border: none; border-radius: 50%; color: white; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; }
+  .csend:hover { background: var(--brown-dark); }
+
+  /* ── PRIVACY ── */
+  #s-privacy { background: #F5F5F8; }
+  .priv-hdr { background: linear-gradient(135deg, #1A1A2E, #2D2D4E); padding: 14px 18px; flex-shrink: 0; }
+  .priv-title { color: white; font-size: 17px; font-weight: 500; }
+  .priv-sub { color: rgba(255,255,255,0.52); font-size: 11px; margin-top: 3px; font-family: 'Noto Naskh Arabic', serif; direction: rtl; }
+  .pbody { flex: 1; overflow-y: auto; padding: 13px; display: flex; flex-direction: column; gap: 10px; }
+  .psec { background: white; border-radius: 16px; padding: 14px; border: 0.5px solid #E0E0EC; }
+  .ptitle { font-size: 12px; font-weight: 500; color: #1A1A2E; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 0.5px solid #F0F0F8; }
+  .trow { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid #F5F5F8; }
+  .trow:last-child { border-bottom: none; }
+  .tname { font-size: 12px; color: #2C2C4E; }
+  .tdesc { font-size: 10px; color: #9090B0; margin-top: 1px; }
+  .toggle { width: 34px; height: 19px; border-radius: 10px; position: relative; cursor: pointer; flex-shrink: 0; transition: background 0.2s; }
+  .toggle.on { background: var(--brown-mid); }
+  .toggle.off { background: #D0D0DC; }
+  .knob { width: 15px; height: 15px; background: white; border-radius: 50%; position: absolute; top: 2px; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .toggle.on .knob { left: 17px; }
+  .toggle.off .knob { left: 2px; }
+  .del-btn { width: 100%; padding: 11px; background: #FFF0F0; color: #8B2020; border: 0.5px solid #F0C0C0; border-radius: 13px; font-size: 12px; font-family: 'Tajawal', sans-serif; cursor: pointer; font-weight: 500; transition: background 0.2s; }
+  .del-btn:hover { background: #FFE0E0; }
+  .priv-note { font-size: 10px; color: #9090B0; text-align: center; padding: 2px 0; }
+
+  /* ── CRISIS ── */
+  #s-crisis { background: #FFF8F8; }
+  .crisis-hdr { background: linear-gradient(135deg, #6B1010, #A32D2D); padding: 14px 18px; flex-shrink: 0; }
+  .crisis-title { color: white; font-size: 17px; font-weight: 500; }
+  .crisis-sub { color: rgba(255,255,255,0.72); font-size: 11px; margin-top: 3px; }
+  .crisis-body { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .calm-card { background: #E1F5EE; border-radius: 16px; padding: 15px; border: 0.5px solid #9FE1CB; text-align: center; }
+  .calm-title { font-size: 14px; font-weight: 500; color: #0F6E56; margin-bottom: 5px; }
+  .calm-text { font-size: 11px; color: #1D9E75; line-height: 1.6; }
+  .crisis-card { background: white; border-radius: 14px; padding: 14px; border: 0.5px solid #F7C1C1; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background 0.2s; }
+  .crisis-card:hover { background: #FFF5F5; }
+  .cicon { width: 42px; height: 42px; background: #FCEBEB; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; }
+  .ccard-name { font-size: 13px; font-weight: 500; color: #2C1A00; }
+  .ccard-desc { font-size: 10px; color: #9E8060; margin-top: 2px; }
+  .crisis-arr { margin-left: auto; color: #E24B4A; font-size: 16px; }
+  .crisis-note { font-size: 10px; color: #C8B89A; text-align: center; padding: 2px 0; }
+
+  /* ── BOTTOM NAV ── */
+  .bnav { display: flex; background: white; border-top: 0.5px solid var(--border); padding: 8px 0 10px; flex-shrink: 0; }
+  .bni { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 0; }
+  .bni-icon { font-size: 18px; opacity: 0.42; transition: opacity 0.2s; }
+  .bni.on .bni-icon { opacity: 1; }
+  .bni-lbl { font-size: 9px; color: var(--text-light); font-family: 'Tajawal', sans-serif; }
+  .bni.on .bni-lbl { color: var(--brown-mid); font-weight: 500; }
+
+  /* ── BACK BUTTON ── */
+  .back-btn {
+    position: absolute; top: 34px; left: 14px;
+    background: rgba(255,255,255,0.16); border: none; border-radius: 50%;
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px; color: white; z-index: 5;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.28); }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 4px; }
+
+  /* ── BOTTOM INFO ── */
+  .bottom-info {
+    text-align: center;
+    color: rgba(255,255,255,0.35);
+    font-size: 12px;
+    max-width: 380px;
+    line-height: 1.6;
+  }
+  .bottom-info strong { color: rgba(255,255,255,0.55); }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-title">Sanad · سَنَد</div>
+  <div class="page-sub">UAE Mental Health App — Interactive Prototype · Capstone Project</div>
+</div>
+
+<div class="top-nav">
+  <button class="nav-btn active" onclick="go('welcome')">Welcome</button>
+  <button class="nav-btn" onclick="go('home')">Home</button>
+  <button class="nav-btn" onclick="go('sound')">Soundscape</button>
+  <button class="nav-btn" onclick="go('breathe')">Breathe</button>
+  <button class="nav-btn" onclick="go('mood')">Mood Log</button>
+  <button class="nav-btn" onclick="go('chat')">AI Chat</button>
+  <button class="nav-btn" onclick="go('privacy')">Privacy</button>
+  <button class="nav-btn" onclick="go('crisis')">Crisis</button>
+</div>
+
+<div class="phone-outer">
+  <div class="phone-notch"></div>
+  <div class="phone-screen">
+
+    <!-- ══════════════ WELCOME ══════════════ -->
+    <div class="screen active" id="s-welcome">
+      <svg class="geo" viewBox="0 0 320 660" xmlns="http://www.w3.org/2000/svg" style="opacity:0.1">
+        <defs>
+          <pattern id="geo1" x="0" y="0" width="64" height="64" patternUnits="userSpaceOnUse">
+            <polygon points="32,0 64,16 64,48 32,64 0,48 0,16" fill="none" stroke="white" stroke-width="0.8"/>
+            <line x1="32" y1="0" x2="32" y2="64" stroke="white" stroke-width="0.3"/>
+            <line x1="0" y1="32" x2="64" y2="32" stroke="white" stroke-width="0.3"/>
+          </pattern>
+        </defs>
+        <rect width="320" height="660" fill="url(#geo1)"/>
+      </svg>
+      <div class="sbar" style="color:rgba(255,255,255,0.55);position:relative;z-index:1"><span>9:41</span><span>●●●</span></div>
+      <div class="ob-body">
+        <div class="ob-logo">
+          <svg viewBox="0 0 46 46" fill="none">
+            <path d="M23 5C13 5 5 13 5 23C5 31 10 37.5 18 39.5C17 36 18 31.5 23 29C28 31.5 29 36 28 39.5C36 37.5 41 31 41 23C41 13 33 5 23 5Z" fill="rgba(245,217,168,0.9)"/>
+            <circle cx="23" cy="23" r="6" fill="rgba(245,217,168,0.55)"/>
+          </svg>
+        </div>
+        <div class="ob-name">Sanad</div>
+        <div class="ob-arabic">سَنَد · دعم · خصوصية · أمان</div>
+        <div class="ob-tag">A private, culturally-sensitive mental wellness companion for UAE university students.</div>
+        <div class="ob-badge"><div class="ob-dot"></div> No account · No name · 100% private</div>
+        <button class="btn-gold" onclick="go('home')">Get Started — ابدأ الآن</button>
+        <button class="btn-outline">العربية / English</button>
+      </div>
+    </div>
+
+    <!-- ══════════════ HOME ══════════════ -->
+    <div class="screen" id="s-home">
+      <div class="sbar" style="background:linear-gradient(135deg,#3D1F00,#6B3A1F);color:rgba(255,255,255,0.6)"><span>9:41</span><span>●●●</span></div>
+      <div class="home-hdr">
+        <svg class="geo" viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg" style="opacity:0.1">
+          <defs><pattern id="geo2" x="0" y="0" width="44" height="44" patternUnits="userSpaceOnUse"><polygon points="22,0 44,11 44,33 22,44 0,33 0,11" fill="none" stroke="white" stroke-width="0.7"/></pattern></defs>
+          <rect width="320" height="140" fill="url(#geo2)"/>
+        </svg>
+        <div class="hdr-top">
+          <div>
+            <div class="greet-en">Good evening — مساء الخير</div>
+            <div class="greet-ar">كيف حالك اليوم؟</div>
+          </div>
+          <div class="avatar">S</div>
+        </div>
+        <div class="mood-bar">
+          <div class="mood-q">Quick check-in · كيف تشعر الآن؟</div>
+          <div class="mood-row">
+            <button class="memoji" onclick="selMood(this)">😔</button>
+            <button class="memoji" onclick="selMood(this)">😐</button>
+            <button class="memoji" onclick="selMood(this)">🙂</button>
+            <button class="memoji" onclick="selMood(this)">😊</button>
+            <button class="memoji" onclick="selMood(this)">😄</button>
+          </div>
+        </div>
+      </div>
+      <div class="home-body">
+        <div class="sec-lbl">Daily Reflection · تأمل اليوم</div>
+        <div class="daily-card">
+          <svg class="geo" viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg" style="opacity:0.1">
+            <defs><pattern id="geo3" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse"><polygon points="16,0 32,8 32,24 16,32 0,24 0,8" fill="none" stroke="white" stroke-width="0.6"/></pattern></defs>
+            <rect width="280" height="90" fill="url(#geo3)"/>
+          </svg>
+          <div class="daily-title">✨ Wisdom of the day</div>
+          <div class="daily-ar">الصبر مفتاح الفرج</div>
+          <div class="daily-quote">"Patience is the key to relief." — Arabic proverb</div>
+          <div class="daily-source">Tap to reflect · اضغط للتأمل</div>
+        </div>
+        <div class="sec-lbl">Features · المميزات</div>
+        <div class="feat-grid">
+          <div class="fcard" onclick="go('sound')">
+            <div class="ficon" style="background:#F0E8D8">🎵</div>
+            <div class="ftitle">Soundscape</div>
+            <div class="fsub">Oud · Desert · Gulf</div>
+          </div>
+          <div class="fcard" onclick="go('breathe')">
+            <div class="ficon" style="background:#E8F0E8">🫁</div>
+            <div class="ftitle">Breathe · تنفس</div>
+            <div class="fsub">Calm in 2 min</div>
+          </div>
+          <div class="fcard" onclick="go('mood')">
+            <div class="ficon" style="background:#E8F0F8">📊</div>
+            <div class="ftitle">Mood Log</div>
+            <div class="fsub">تتبع أسبوعك</div>
+          </div>
+          <div class="fcard" onclick="go('chat')">
+            <div class="ficon" style="background:#F0E8F0">💬</div>
+            <div class="ftitle">AI Support</div>
+            <div class="fsub">Private bilingual</div>
+          </div>
+        </div>
+        <div class="qcard" onclick="go('crisis')">
+          <div class="qicon" style="background:#FCEBEB">🆘</div>
+          <div><div class="qtitle">Crisis Support · دعم طارئ</div><div class="qsub">Available 24/7 · متاح على مدار الساعة</div></div>
+          <div class="arr">›</div>
+        </div>
+        <div class="qcard" onclick="go('privacy')">
+          <div class="qicon" style="background:#F5F0E8">🔒</div>
+          <div><div class="qtitle">Privacy Controls · الخصوصية</div><div class="qsub">You control all your data</div></div>
+          <div class="arr">›</div>
+        </div>
+      </div>
+      <div class="bnav">
+        <div class="bni on"><span class="bni-icon">🏠</span><span class="bni-lbl">Home</span></div>
+        <div class="bni" onclick="go('sound')"><span class="bni-icon">🎵</span><span class="bni-lbl">Sounds</span></div>
+        <div class="bni" onclick="go('chat')"><span class="bni-icon">💬</span><span class="bni-lbl">Chat</span></div>
+        <div class="bni" onclick="go('privacy')"><span class="bni-icon">🔒</span><span class="bni-lbl">Privacy</span></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ SOUNDSCAPE ══════════════ -->
+    <div class="screen" id="s-sound">
+      <div class="sbar" style="background:linear-gradient(135deg,#1A0A2E,#2D1654);color:rgba(232,213,255,0.5)"><span>9:41</span><span>●●●</span></div>
+      <div class="sound-hdr">
+        <svg class="geo" viewBox="0 0 320 80" xmlns="http://www.w3.org/2000/svg" style="opacity:0.1">
+          <defs><pattern id="geo4" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse"><polygon points="18,0 36,9 36,27 18,36 0,27 0,9" fill="none" stroke="white" stroke-width="0.65"/></pattern></defs>
+          <rect width="320" height="80" fill="url(#geo4)"/>
+        </svg>
+        <button class="back-btn" onclick="go('home')" style="position:relative;top:0;left:0;margin-bottom:10px;display:inline-flex">‹</button>
+        <div class="sound-title">Calming Soundscape 🎵</div>
+        <div class="sound-ar">أصوات مهدئة — للراحة والتأمل</div>
+      </div>
+      <div class="sound-body">
+        <div id="np-box" style="display:none" class="now-playing">
+          <div class="np-bars"><div class="np-bar"></div><div class="np-bar"></div><div class="np-bar"></div><div class="np-bar"></div></div>
+          <div><div class="np-lbl">Now Playing</div><div class="np-name" id="np-name">—</div></div>
+        </div>
+        <div class="sound-section-lbl">UAE & Arabic Sounds · أصوات عربية</div>
+        <div class="sound-card" onclick="playSound(this,'Oud Meditation — عزف العود')">
+          <div class="sicon" style="background:rgba(200,145,42,0.2)">🪕</div>
+          <div><div class="sname">Oud Meditation</div><div class="sdesc">Traditional Arabic string instrument — عزف العود</div></div>
+          <button class="pbtn">▶</button>
+        </div>
+        <div class="sound-card" onclick="playSound(this,'Desert Wind — رياح الصحراء')">
+          <div class="sicon" style="background:rgba(180,160,100,0.15)">🏜</div>
+          <div><div class="sname">Desert Wind</div><div class="sdesc">Sands of the Arabian desert — رياح الصحراء</div></div>
+          <button class="pbtn">▶</button>
+        </div>
+        <div class="sound-card" onclick="playSound(this,'Falconry Ambience — الصقور')">
+          <div class="sicon" style="background:rgba(150,130,80,0.15)">🦅</div>
+          <div><div class="sname">Falconry Ambience</div><div class="sdesc">UAE heritage soundscape — تراث إماراتي</div></div>
+          <button class="pbtn">▶</button>
+        </div>
+        <div class="sound-card" onclick="playSound(this,'Quran Recitation — تلاوة')">
+          <div class="sicon" style="background:rgba(100,160,100,0.15)">📖</div>
+          <div><div class="sname">Quran Recitation</div><div class="sdesc">Calming tilawah — تلاوة مريحة</div></div>
+          <button class="pbtn">▶</button>
+        </div>
+        <div class="sound-section-lbl" style="margin-top:4px">Nature Sounds · أصوات الطبيعة</div>
+        <div class="sound-card" onclick="playSound(this,'Rain on Palms — مطر هادئ')">
+          <div class="sicon" style="background:rgba(80,120,180,0.15)">🌧</div>
+          <div><div class="sname">Rain on Palms</div><div class="sdesc">Gentle tropical rain — مطر هادئ</div></div>
+          <button class="pbtn">▶</button>
+        </div>
+        <div class="sound-card" onclick="playSound(this,'Arabian Gulf Waves — أمواج الخليج')">
+          <div class="sicon" style="background:rgba(50,130,180,0.15)">🌊</div>
+          <div><div class="sname">Arabian Gulf Waves</div><div class="sdesc">Gentle shore waves — أمواج الخليج العربي</div></div>
+          <button class="pbtn">▶</button>
+        </div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.22);text-align:center;padding:6px 0">All sounds work offline · تعمل بدون إنترنت</div>
+      </div>
+    </div>
+
+    <!-- ══════════════ BREATHE ══════════════ -->
+    <div class="screen" id="s-breathe">
+      <div class="sbar"><span>9:41</span><span>●●●</span></div>
+      <button class="back-btn" style="background:rgba(107,58,31,0.12);color:#3D1F00" onclick="go('home')">‹</button>
+      <div class="br-body">
+        <svg class="geo" viewBox="0 0 320 660" xmlns="http://www.w3.org/2000/svg" style="opacity:0.06">
+          <defs><pattern id="geo5" x="0" y="0" width="52" height="52" patternUnits="userSpaceOnUse"><polygon points="26,0 52,13 52,39 26,52 0,39 0,13" fill="none" stroke="#6B3A1F" stroke-width="0.8"/></pattern></defs>
+          <rect width="320" height="660" fill="url(#geo5)"/>
+        </svg>
+        <div class="br-lbl">Breathing · تنفس</div>
+        <div class="br-ar">خذ لحظة معي</div>
+        <div class="circ-wrap">
+          <div class="ring1"></div>
+          <div class="ring2"></div>
+          <div class="core"><span class="bc-num" id="bNum">4</span></div>
+        </div>
+        <div class="br-instr" id="bInstr">Inhale slowly — استنشق</div>
+        <div class="br-instr-ar" id="bInstrAr">استنشق ببطء</div>
+        <div class="tech-row">
+          <button class="tpill on" onclick="setTech(this,'4-7-8',[4,7,8,2])">4-7-8</button>
+          <button class="tpill" onclick="setTech(this,'Box',[4,4,4,4])">Box · مربع</button>
+          <button class="tpill" onclick="setTech(this,'2-4-6',[2,4,6,2])">2-4-6</button>
+        </div>
+        <div class="br-note">Works offline · يعمل بدون إنترنت · No data collected</div>
+      </div>
+    </div>
+
+    <!-- ══════════════ MOOD ══════════════ -->
+    <div class="screen" id="s-mood">
+      <div class="sbar" style="background:linear-gradient(135deg,#1F3D2A,#2E6B3E);color:rgba(255,255,255,0.65)"><span>9:41</span><span>●●●</span></div>
+      <div class="mood-hdr2">
+        <svg class="geo" viewBox="0 0 320 80" xmlns="http://www.w3.org/2000/svg" style="opacity:0.1">
+          <defs><pattern id="geo6" x="0" y="0" width="38" height="38" patternUnits="userSpaceOnUse"><polygon points="19,0 38,9.5 38,28.5 19,38 0,28.5 0,9.5" fill="none" stroke="white" stroke-width="0.6"/></pattern></defs>
+          <rect width="320" height="80" fill="url(#geo6)"/>
+        </svg>
+        <button class="back-btn" style="position:relative;top:0;left:0;margin-bottom:10px;display:inline-flex;background:rgba(255,255,255,0.14)" onclick="go('home')">‹</button>
+        <div class="mhdr-title">Mood Tracker · تتبع المشاعر</div>
+        <div class="mhdr-ar">الجمعة، ١ مايو ٢٠٢٦</div>
+      </div>
+      <div class="mbody">
+        <div class="mlog">
+          <div class="mlog-title">كيف تشعر الآن؟ · How do you feel?</div>
+          <div class="mgrid">
+            <div class="mitem" onclick="pickMood(this)"><span class="em">😰</span><span class="ml">قلق</span></div>
+            <div class="mitem" onclick="pickMood(this)"><span class="em">😔</span><span class="ml">حزين</span></div>
+            <div class="mitem" onclick="pickMood(this)"><span class="em">😐</span><span class="ml">عادي</span></div>
+            <div class="mitem" onclick="pickMood(this)"><span class="em">😊</span><span class="ml">بخير</span></div>
+            <div class="mitem" onclick="pickMood(this)"><span class="em">😄</span><span class="ml">ممتاز</span></div>
+          </div>
+          <textarea class="note-field" placeholder="ملاحظة خاصة · Private note (optional)..."></textarea>
+          <button class="save-btn" onclick="saveMood()">حفظ · Save Entry</button>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">أسبوعك · Your week at a glance</div>
+          <div class="cbars">
+            <div class="ccol"><div class="cbar" style="height:40%"></div><span class="clbl">إث</span></div>
+            <div class="ccol"><div class="cbar" style="height:65%"></div><span class="clbl">ثل</span></div>
+            <div class="ccol"><div class="cbar" style="height:45%"></div><span class="clbl">أر</span></div>
+            <div class="ccol"><div class="cbar" style="height:80%"></div><span class="clbl">خم</span></div>
+            <div class="ccol"><div class="cbar today" style="height:70%"></div><span class="clbl" style="color:#2E6B3E;font-weight:500">جم</span></div>
+            <div class="ccol"><div class="cbar" style="height:15%;opacity:0.3"></div><span class="clbl">سب</span></div>
+            <div class="ccol"><div class="cbar" style="height:15%;opacity:0.3"></div><span class="clbl">أح</span></div>
+          </div>
+        </div>
+        <div class="data-note">البيانات محفوظة على جهازك فقط · On-device storage only</div>
+      </div>
+      <div class="bnav">
+        <div class="bni" onclick="go('home')"><span class="bni-icon">🏠</span><span class="bni-lbl">Home</span></div>
+        <div class="bni" onclick="go('sound')"><span class="bni-icon">🎵</span><span class="bni-lbl">Sounds</span></div>
+        <div class="bni" onclick="go('chat')"><span class="bni-icon">💬</span><span class="bni-lbl">Chat</span></div>
+        <div class="bni on"><span class="bni-icon">📈</span><span class="bni-lbl">Mood</span></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ AI CHAT ══════════════ -->
+    <div class="screen" id="s-chat">
+      <div class="sbar" style="background:linear-gradient(135deg,#3D1F00,#6B3A1F);color:rgba(255,255,255,0.6)"><span>9:41</span><span>●●●</span></div>
+      <div class="chat-hdr">
+        <svg class="geo" viewBox="0 0 320 68" xmlns="http://www.w3.org/2000/svg" style="opacity:0.1">
+          <defs><pattern id="geo7" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse"><polygon points="15,0 30,7.5 30,22.5 15,30 0,22.5 0,7.5" fill="none" stroke="white" stroke-width="0.5"/></pattern></defs>
+          <rect width="320" height="68" fill="url(#geo7)"/>
+        </svg>
+        <button style="background:rgba(255,255,255,0.14);border:none;border-radius:50%;width:28px;height:28px;color:white;cursor:pointer;font-size:15px;z-index:2;position:relative;flex-shrink:0" onclick="go('home')">‹</button>
+        <div class="cavatar" style="position:relative;z-index:2">🌿</div>
+        <div style="position:relative;z-index:2">
+          <div class="cname">Sanad · سَنَد</div>
+          <div class="cstatus">🔒 Anonymous mode · الوضع المجهول</div>
+        </div>
+      </div>
+      <div class="cbody" id="chatBody">
+        <div class="msg ai">
+          <div class="bbl">مرحباً 👋 I'm here to listen. How are you feeling today? You can write in Arabic or English — أنا هنا للاستماع، تكلم بالعربي أو الإنجليزي.</div>
+          <div class="mtime">9:40 AM</div>
+        </div>
+        <div class="msg me">
+          <div class="bbl">I've been stressed about my final exams</div>
+          <div class="mtime">9:41 AM</div>
+        </div>
+        <div class="msg ai">
+          <div class="bbl">That's completely understandable — ضغط الامتحانات صعب. Many students feel this way. Would you like a quick breathing exercise, or shall we talk through what's worrying you most?</div>
+          <div class="mtime">9:41 AM</div>
+        </div>
+      </div>
+      <div class="suggest-bar">
+        <button class="csug" onclick="quickMsg('I feel anxious · أشعر بالقلق')">I feel anxious · قلق</button>
+        <button class="csug" onclick="quickMsg('Help me breathe · ساعدني أتنفس')">Help me breathe</button>
+        <button class="csug" onclick="quickMsg('أحتاج للتحدث مع شخص')">أحتاج للتحدث</button>
+        <button class="csug" onclick="quickMsg('I am overwhelmed with studies')">Overwhelmed</button>
+      </div>
+      <div class="chat-input-bar">
+        <input class="cinput" id="chatInput" placeholder="English / العربية..." onkeydown="if(event.key==='Enter')sendChat()"/>
+        <button class="csend" onclick="sendChat()">›</button>
+      </div>
+    </div>
+
+    <!-- ══════════════ PRIVACY ══════════════ -->
+    <div class="screen" id="s-privacy">
+      <div class="sbar" style="background:linear-gradient(135deg,#1A1A2E,#2D2D4E);color:rgba(255,255,255,0.5)"><span>9:41</span><span>●●●</span></div>
+      <div class="priv-hdr">
+        <button class="back-btn" style="position:relative;top:0;left:0;margin-bottom:10px;display:inline-flex;background:rgba(255,255,255,0.1)" onclick="go('home')">‹</button>
+        <div class="priv-title">🔒 Privacy · الخصوصية</div>
+        <div class="priv-sub">أنت تتحكم في كل شيء · You control everything</div>
+      </div>
+      <div class="pbody">
+        <div class="psec">
+          <div class="ptitle">Data Storage · تخزين البيانات</div>
+          <div class="trow"><div><div class="tname">Device-only storage · تخزين محلي فقط</div><div class="tdesc">Nothing leaves your phone</div></div><div class="toggle on" onclick="flipToggle(this)"><div class="knob"></div></div></div>
+          <div class="trow"><div><div class="tname">Anonymous mode · الوضع المجهول</div><div class="tdesc">No name, email, or ID collected</div></div><div class="toggle on" onclick="flipToggle(this)"><div class="knob"></div></div></div>
+          <div class="trow"><div><div class="tname">No third-party sharing · لا مشاركة خارجية</div><div class="tdesc">Zero data to advertisers or researchers</div></div><div class="toggle on" onclick="flipToggle(this)"><div class="knob"></div></div></div>
+        </div>
+        <div class="psec">
+          <div class="ptitle">App Security · أمان التطبيق</div>
+          <div class="trow"><div><div class="tname">Hide behind passcode · رمز سري</div><div class="tdesc">Require PIN to open app</div></div><div class="toggle off" onclick="flipToggle(this)"><div class="knob"></div></div></div>
+          <div class="trow"><div><div class="tname">Disguise as "Study Timer"</div><div class="tdesc">تظهر كأداة دراسة على الشاشة الرئيسية</div></div><div class="toggle off" onclick="flipToggle(this)"><div class="knob"></div></div></div>
+          <div class="trow"><div><div class="tname">Turn off chat history · إيقاف السجل</div><div class="tdesc">Conversations are not saved</div></div><div class="toggle on" onclick="flipToggle(this)"><div class="knob"></div></div></div>
+          <div class="trow"><div><div class="tname">Opt out of analytics · رفض الإحصاءات</div><div class="tdesc">No usage tracking whatsoever</div></div><div class="toggle on" onclick="flipToggle(this)"><div class="knob"></div></div></div>
+        </div>
+        <button class="del-btn">🗑 حذف جميع البيانات · Delete all my data</button>
+        <div class="priv-note">Data stored in encrypted university-approved storage. Complies with UAE data protection standards.</div>
+      </div>
+      <div class="bnav">
+        <div class="bni" onclick="go('home')"><span class="bni-icon">🏠</span><span class="bni-lbl">Home</span></div>
+        <div class="bni" onclick="go('sound')"><span class="bni-icon">🎵</span><span class="bni-lbl">Sounds</span></div>
+        <div class="bni" onclick="go('chat')"><span class="bni-icon">💬</span><span class="bni-lbl">Chat</span></div>
+        <div class="bni on"><span class="bni-icon">🔒</span><span class="bni-lbl">Privacy</span></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ CRISIS ══════════════ -->
+    <div class="screen" id="s-crisis">
+      <div class="sbar" style="background:linear-gradient(135deg,#6B1010,#A32D2D);color:rgba(255,255,255,0.65)"><span>9:41</span><span>●●●</span></div>
+      <div class="crisis-hdr">
+        <button class="back-btn" style="position:relative;top:0;left:0;margin-bottom:10px;display:inline-flex;background:rgba(255,255,255,0.14)" onclick="go('home')">‹</button>
+        <div class="crisis-title">Need Urgent Support? · دعم طارئ</div>
+        <div class="crisis-sub">You are not alone — لست وحدك. Help is available now.</div>
+      </div>
+      <div class="crisis-body">
+        <div class="calm-card">
+          <div class="calm-title">Take a breath first 🌿</div>
+          <div class="calm-text">You are safe. This moment will pass. Reach out — someone is ready to listen right now.</div>
+        </div>
+        <div class="crisis-card">
+          <div class="cicon">📞</div>
+          <div><div class="ccard-name">UAE Crisis Helpline</div><div class="ccard-desc">800-HOPE (4673) · Available 24/7 · مجاني ومتاح دائماً</div></div>
+          <div class="crisis-arr">›</div>
+        </div>
+        <div class="crisis-card">
+          <div class="cicon">🏥</div>
+          <div><div class="ccard-name">University Counseling · الإرشاد الجامعي</div><div class="ccard-desc">Book a confidential session — سري تماماً</div></div>
+          <div class="crisis-arr">›</div>
+        </div>
+        <div class="crisis-card">
+          <div class="cicon">👤</div>
+          <div><div class="ccard-name">Trusted Contact · شخص موثوق</div><div class="ccard-desc">Reach your pre-selected trusted person</div></div>
+          <div class="crisis-arr">›</div>
+        </div>
+        <div class="crisis-card" onclick="go('breathe')">
+          <div class="cicon">🫁</div>
+          <div><div class="ccard-name">Calm me down · هدئني الآن</div><div class="ccard-desc">Start a guided breathing exercise</div></div>
+          <div class="crisis-arr">›</div>
+        </div>
+        <div class="crisis-note">Crisis contacts are hidden by default and only searchable within the app for your privacy.</div>
+      </div>
+    </div>
+
+  </div><!-- end phone-screen -->
+</div><!-- end phone-outer -->
+
+<div class="bottom-info">
+  <strong>Sanad · سَنَد</strong> — Capstone Prototype<br/>
+  Open this file in any browser. No installation required.<br/>
+  For VS Code: Right-click the file → <strong>Open with Live Server</strong>
+</div>
+
+<script>
+// ── NAVIGATION ──
+const screens = ['welcome','home','sound','breathe','mood','chat','privacy','crisis'];
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach((b, i) => {
+    b.classList.toggle('active', screens[i] === id);
+  });
+}
+
+// ── MOOD SELECTION (home) ──
+function selMood(el) {
+  document.querySelectorAll('.memoji').forEach(m => m.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+// ── MOOD SELECTION (tracker) ──
+function pickMood(el) {
+  document.querySelectorAll('.mitem').forEach(m => m.classList.remove('pk'));
+  el.classList.add('pk');
+}
+
+// ── SAVE MOOD ──
+function saveMood() {
+  const btn = document.querySelector('.save-btn');
+  btn.textContent = '✓ Saved! · تم الحفظ';
+  btn.style.background = '#1F3D2A';
+  setTimeout(() => { btn.textContent = 'حفظ · Save Entry'; btn.style.background = ''; }, 2000);
+}
+
+// ── TOGGLES ──
+function flipToggle(el) {
+  el.classList.toggle('on');
+  el.classList.toggle('off');
+}
+
+// ── SOUNDSCAPE ──
+let currentSound = null;
+function playSound(card, name) {
+  document.querySelectorAll('.sound-card').forEach(c => {
+    c.classList.remove('playing');
+    c.querySelector('.pbtn').textContent = '▶';
+  });
+  if (currentSound === name) {
+    currentSound = null;
+    document.getElementById('np-box').style.display = 'none';
+    return;
+  }
+  card.classList.add('playing');
+  card.querySelector('.pbtn').textContent = '■';
+  currentSound = name;
+  document.getElementById('np-name').textContent = name;
+  document.getElementById('np-box').style.display = 'flex';
+}
+
+// ── BREATHING TIMER ──
+let bPhase = 0, bCount = 4;
+const bPhases = ['Inhale slowly — استنشق', 'Hold — احبس', 'Exhale slowly — ازفر', 'Rest — ارتح'];
+const bPhasesAr = ['استنشق ببطء', 'احبس النفس', 'ازفر ببطء', 'استرح'];
+let bDurations = [4, 7, 8, 2];
+
+setInterval(() => {
+  bCount--;
+  const n = document.getElementById('bNum');
+  const i = document.getElementById('bInstr');
+  const ia = document.getElementById('bInstrAr');
+  if (n) n.textContent = bCount;
+  if (bCount <= 0) {
+    bPhase = (bPhase + 1) % 4;
+    bCount = bDurations[bPhase];
+    if (i) i.textContent = bPhases[bPhase];
+    if (ia) ia.textContent = bPhasesAr[bPhase];
+  }
+}, 1000);
+
+function setTech(btn, name, durations) {
+  document.querySelectorAll('.tpill').forEach(p => p.classList.remove('on'));
+  btn.classList.add('on');
+  bDurations = durations;
+  bPhase = 0;
+  bCount = durations[0];
+  const i = document.getElementById('bInstr');
+  const ia = document.getElementById('bInstrAr');
+  if (i) i.textContent = bPhases[0];
+  if (ia) ia.textContent = bPhasesAr[0];
+}
+
+// ── AI CHAT ──
+const aiReplies = [
+  "أنا هنا معك 🌿 It takes real strength to reach out. What feels hardest right now?",
+  "That makes complete sense. Exam pressure — خاصةً في السنة الأخيرة — is genuinely hard. Would a breathing exercise help first?",
+  "You are not alone in feeling this way — لست وحدك. Many students share these feelings. Let's take it one step at a time.",
+  "الصبر مفتاح الفرج — patience is key. Can you tell me more about what's been weighing on you most?",
+  "I hear you. Would you like to try the 4-7-8 breathing technique? It takes under 2 minutes and can help calm your nervous system. 🫁",
+  "That's a very common feeling among students here in the UAE. You're showing great self-awareness by reaching out. What kind of support would feel most helpful right now?",
+  "مشكور على مشاركتك هذا معي. It's okay to not be okay. Would you like me to connect you with a calm breathing exercise or crisis support?",
+];
+
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  const body = document.getElementById('chatBody');
+  const text = input.value.trim();
+  if (!text) return;
+  const userMsg = document.createElement('div');
+  userMsg.className = 'msg me';
+  userMsg.innerHTML = `<div class="bbl">${text}</div><div class="mtime">Just now</div>`;
+  body.appendChild(userMsg);
+  input.value = '';
+  body.scrollTop = body.scrollHeight;
+  setTimeout(() => {
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'msg ai';
+    aiMsg.innerHTML = `<div class="bbl">${aiReplies[Math.floor(Math.random() * aiReplies.length)]}</div><div class="mtime">Just now</div>`;
+    body.appendChild(aiMsg);
+    body.scrollTop = body.scrollHeight;
+  }, 900);
+}
+
+function quickMsg(text) {
+  document.getElementById('chatInput').value = text;
+  sendChat();
+}
+</script>
+</body>
+</html>
